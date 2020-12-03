@@ -4,11 +4,10 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.File;
+import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.util.Arrays;
 
 public class Xifrar {
@@ -44,10 +43,10 @@ public class Xifrar {
             return sKey;
         }
 
-        public static byte[] encryptData(byte[] data, SecretKey key) {
+        public static byte[] encryptData(byte[] data, PublicKey key) {
             byte[] encryptedData = null;
             try{
-                Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+                Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding","SunJCE");
                 cipher.init(Cipher.ENCRYPT_MODE, key);
                 encryptedData = cipher.doFinal(data);
             }catch(Exception ex){
@@ -56,18 +55,39 @@ public class Xifrar {
             return encryptedData;
         }
 
-    public static byte[] decryptData(byte[] data, SecretKey key) {
+    public static byte[] decryptData(byte[] data, PrivateKey key) {
         byte[] decryptedData = null;
         try{
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "SunJCE");
             cipher.init(Cipher.DECRYPT_MODE, key);
             decryptedData = cipher.doFinal(data);
-            String text = new String(decryptedData, StandardCharsets.UTF_8);
-            System.out.println(text);
+
         }catch(Exception ex){
             System.out.println("Error desxifrant les dades " + ex);
         }
         return decryptedData;
+    }
+
+    public static KeyPair randomGenerate(int len) {
+            KeyPair keys = null;
+            try{
+                KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+                keyGen.initialize(len);
+                keys = keyGen.genKeyPair();
+            }catch (Exception e){
+                System.out.println("Generador no disponible");
+            }
+            return keys;
+    }
+
+    public static KeyStore loadKeystore(String ksFile, String ksPwd) throws Exception {
+            KeyStore ks =KeyStore.getInstance("PKCS12");
+            File f = new File(ksFile);
+            if(f.isFile()){
+                FileInputStream in = new FileInputStream(f);
+                ks.load(in, ksPwd.toCharArray());
+            }
+            return ks;
     }
 
 

@@ -6,119 +6,91 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyStore;
 import java.sql.SQLOutput;
+import java.util.Enumeration;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
 
-        //EXERCICI 1.5 Xifrar i desxifrar un text en clar amb una clau generada
+        //EXERCICI 1
 
-        /*System.out.println("Frase a xifrar:");
-        String s = scanner.nextLine();
+        /*KeyPair myKeys = Xifrar.randomGenerate(1024);
+        System.out.println(myKeys.getPublic());
+        System.out.println(myKeys.getPrivate());
 
-        byte[] msg = s.getBytes("UTF8");
-        SecretKey myKey = Xifrar.keygenKeyGeneration(192);
+        System.out.println("Introdueix el missatge a xifrar: ");
+        String ms = scanner.nextLine();
 
-        byte[] msgXifrat = Xifrar.encryptData(msg, myKey);
-        System.out.println(msgXifrat);
+        byte[] msg = ms.getBytes();
 
-        byte[] msgDesxifrat = Xifrar.decryptData(msgXifrat, myKey);
+        byte[] msgEncriptat = Xifrar.encryptData(msg, myKeys.getPublic());
+        System.out.println("Xifrat: " + msgEncriptat);
 
-        String text = new String(msgDesxifrat, StandardCharsets.UTF_8);
-        System.out.println(text);*/
+        byte[] msgDesencriptat = Xifrar.decryptData(msgEncriptat, myKeys.getPrivate());
+        String text = new String(msgDesencriptat, StandardCharsets.UTF_8);
 
-
-
-
-
-
-        //EXERCICI 1.6 Xifrar i desxifrar un text en clar amb una clau generada a partir de paraula de pas
-
-        /*System.out.println("Frase a xifrar: ");
-        String s = scanner.nextLine();
-
-        System.out.println("Introdueix la contrasenya:");
-        String password = scanner.nextLine();
-
-        SecretKey myKey = Xifrar.passwordKeyGeneration(password, 256);
-
-        byte[] msg = s.getBytes("UTF8");
-
-        byte[] msgXifrat = Xifrar.encryptData(msg, myKey);
-        System.out.println("xifrat: " + msgXifrat);
-
-        byte[] msgDesxifrat = Xifrar.decryptData(msgXifrat, myKey);
-
-        String text = new String(msgDesxifrat, StandardCharsets.UTF_8);
-        System.out.println("desxifrat: " + text);*/
-
-
-
-
-
-        //EXERCICI 1.7 Provar metodes de la classe SecretKey
-
-        /*SecretKey myKey = Xifrar.keygenKeyGeneration(192);
-
-        System.out.println(myKey.getFormat());
-        System.out.println(myKey.getEncoded());
-        System.out.println(myKey.getAlgorithm());*/
-
-
-
-
-
-
-        //EXERCICI 1.8 BadPaddingException
-
-        /*SecretKey anotherKey = Xifrar.keygenKeyGeneration(256);
-
-        System.out.println("Frase a xifrar: ");
-        String s = scanner.nextLine();
-
-        System.out.println("Introdueix la contrasenya: ");
-        String password = scanner.nextLine();
-        SecretKey myKey = Xifrar.passwordKeyGeneration(password, 256);
-
-        byte[] msg = s.getBytes("UTF8");
-
-        byte[] msgXifrat = Xifrar.encryptData(msg, myKey);
-        System.out.println("Xifrat: " + msgXifrat);
-
-        byte[] msgDesxifrat = Xifrar.decryptData(msgXifrat, anotherKey);
-
-        String text = new String(msgDesxifrat, StandardCharsets.UTF_8);
         System.out.println("Desxifrat: " + text);*/
 
 
 
+        //EXERCICI 2.i.1-2-3-4-5
+
+        /*KeyStore myKs = Xifrar.loadKeystore("/home/dam2a/.keystore", "2dama4328");
+        System.out.println("Tipus: " + myKs.getType());
+        System.out.println("Mida: " + myKs.size());
+        System.out.print("Alies de les claus: ");
+
+        Enumeration<String> alias = myKs.aliases();
+
+        while(alias.hasMoreElements()){
+            System.out.print(alias.nextElement() + " ");
+            System.out.println();
+        }
+
+        System.out.println("Certificat de la clau: " + myKs.getCertificate("mykey"));
+
+        System.out.println("Algoritme de xifrat de la clau: " + myKs.getCertificate("mykey").getPublicKey().getAlgorithm());
+        */
 
 
 
 
 
-        //EXERCICI 2 (HE MODIFICAT LA FUNCIÓ PASSWORDKEYGENERATION, PER A QUE MOSTRI EL TEXT DINS DE LA PROPIA FUNCIÓ (sino donava errors xungos))
-        /*Path path = Paths.get("E:\\textamagat");
-        byte[] arxiu = Files.readAllBytes(path);
+        //EXERCICI 2.ii
 
-        //txt de claus
-        File claus = new File("E:\\clausA4.txt");
-        FileReader frClaus = new FileReader(claus);
-        BufferedReader brClaus = new BufferedReader(frClaus);
+        SecretKey mykey2 = Xifrar.keygenKeyGeneration(128);
 
-        String s = brClaus.readLine();
+        String s = "2dama4328";
+        char[] pass = s.toCharArray();
 
-        while(s != null){
+        KeyStore.ProtectionParameter protectionParameter = new KeyStore.PasswordProtection(pass);
+        KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(mykey2);
 
-            System.out.println("lectura: " + s);
+        KeyStore myKs = Xifrar.loadKeystore("/home/dam2a/.keystore", "2dama4328");
+        myKs.setEntry("mykey2", skEntry ,protectionParameter );
 
-            SecretKey myKey = Xifrar.passwordKeyGeneration(s, 128);
-            Xifrar.decryptData(arxiu, myKey);
+        java.io.FileOutputStream fos = null;
+        try {
+            fos = new java.io.FileOutputStream("newKeyStoreName");
+            myKs.store(fos, pass);
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+        }
 
-            s = brClaus.readLine();
-        }*/
+        Enumeration<String> alias = myKs.aliases();
+
+        while(alias.hasMoreElements()){
+            System.out.print(alias.nextElement() + " ");
+            System.out.println();
+        }
+
 
     }
 }

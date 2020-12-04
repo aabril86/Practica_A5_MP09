@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyStore;
+import java.security.PublicKey;
 import java.sql.SQLOutput;
 import java.util.Enumeration;
 import java.util.Scanner;
@@ -63,7 +64,7 @@ public class Main {
 
         //EXERCICI 2.ii
 
-        SecretKey mykey2 = Xifrar.keygenKeyGeneration(128);
+        /*SecretKey mykey2 = Xifrar.keygenKeyGeneration(128);
 
         String s = "2dama4328";
         char[] pass = s.toCharArray();
@@ -90,7 +91,20 @@ public class Main {
             System.out.print(alias.nextElement() + " ");
             System.out.println();
         }
+        */
 
+
+
+
+        //EXERCICI 3
+
+        //PublicKey publicKey = Xifrar.getPublicKey("/home/dam2a/Baixades/jordi.cer");
+
+
+
+
+
+        //EXERCICI 4
 
     }
 }

@@ -1,12 +1,11 @@
 package xifrat;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -107,6 +106,99 @@ public class Xifrar {
     }
 
 
-    //public static PublicKey getPublicKey(KeyStore ks, String alias, String pwMyKey){}
+    public static PublicKey getPublicKey(KeyStore ks, String alias, String pwMyKey) throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException {
+
+            FileInputStream f = new FileInputStream("E:\\mykeystore.ks");
+
+            ks.load(f, pwMyKey.toCharArray());
+            Key mykey = ks.getKey(alias, pwMyKey.toCharArray());
+
+            if (mykey instanceof PrivateKey) {
+                X509Certificate certificate = (X509Certificate) ks.getCertificate(alias);
+                PublicKey publicKey = certificate.getPublicKey();
+                return publicKey;
+            }
+
+            else return null;
+    }
+
+
+    public static byte[] signData(byte[] data, PrivateKey priv) {
+            byte[] signature = null;
+            try {
+                Signature signer = Signature.getInstance("SHA1withRSA");
+                signer.initSign(priv);
+                signer.update(data);
+                signature = signer.sign();
+            } catch (Exception ex) {
+                System.err.println("Error signant les dades: " + ex);
+            }
+            return signature;
+    }
+
+
+    public static boolean validateSignature(byte[] data, byte[] signature, PublicKey pub) {
+        boolean isValid = false;
+        try {
+        Signature signer = Signature.getInstance("SHA1withRSA");
+        signer.initVerify(pub);
+        signer.update(data);
+        isValid = signer.verify(signature);
+        } catch (Exception ex) {
+            System.err.println("Error validant les dades: " + ex);
+        }
+        return isValid;
+    }
+
+    //METODES EXERCICI 2
+
+    public static byte[][] encryptWrappedData(byte[] data, PublicKey pub) {
+        byte[][] encWrappedData = new byte[2][];
+        try {
+
+            //Genera clau (amb AES)
+            KeyGenerator kgen = KeyGenerator.getInstance("AES");
+            kgen.init(128);
+            SecretKey sKey = kgen.generateKey();
+
+            //Encripta amb la clau que s'ha generat abans
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, sKey);
+            byte[] encMsg = cipher.doFinal(data);
+
+            //Embolcallar la clau amb RSA
+            cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.WRAP_MODE, pub);
+            byte[] encKey = cipher.wrap(sKey);
+            encWrappedData[0] = encMsg;
+            encWrappedData[1] = encKey;
+            } catch (Exception ex) {
+                System.err.println("Ha succeït un error xifrant: " + ex);
+            }
+        return encWrappedData;
+    }
+
+    public static byte[] decryptWrappedData(byte[][] data, PrivateKey privateKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        byte[] decWrappedData = null;
+        byte[] encData = data[0];
+
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        cipher.init(Cipher.UNWRAP_MODE, privateKey);
+
+
+        KeyGenerator kgen = KeyGenerator.getInstance("AES");
+        kgen.init(128);
+
+        SecretKey secretKey = (SecretKey) cipher.unwrap(data[1], "AES", Cipher.SECRET_KEY);
+
+        cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+        decWrappedData = cipher.doFinal(encData);
+
+        return decWrappedData;
+
+    }
+
 
 }

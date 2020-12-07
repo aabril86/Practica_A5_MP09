@@ -39,7 +39,7 @@ public class Main {
 
 
 
-        //EXERCICI 2.i.1-2-3-4-5
+        //EXERCICI 1.2.i.1-2-3-4-5
 
         /*KeyStore myKs = Xifrar.loadKeystore("/home/dam2a/.keystore", "2dama4328");
         System.out.println("Tipus: " + myKs.getType());
@@ -62,7 +62,7 @@ public class Main {
 
 
 
-        //EXERCICI 2.ii
+        //EXERCICI 1.2.ii
 
         /*SecretKey mykey2 = Xifrar.keygenKeyGeneration(128);
 
@@ -96,7 +96,7 @@ public class Main {
 
 
 
-        //EXERCICI 3
+        //EXERCICI 1.3
 
         //PublicKey publicKey = Xifrar.getPublicKey("/home/dam2a/Baixades/jordi.cer");
 
@@ -104,7 +104,47 @@ public class Main {
 
 
 
-        //EXERCICI 4
+        //EXERCICI 1.4 (A partir d'aqui ho he fet en windows)
+
+        /*KeyStore myKs = Xifrar.loadKeystore("E:\\mykeystore.ks", "2dama4328");
+
+        PublicKey publicKey = Xifrar.getPublicKey(myKs, "mykey", "2dama4328");
+
+        System.out.println(publicKey);*/
+
+
+
+
+
+        //EXERCICI 1.5
+
+        byte[] msg = "hola".getBytes();
+
+        /*KeyPair keyPair = Xifrar.randomGenerate(1024);
+
+        byte[] sign = Xifrar.signData(msg, keyPair.getPrivate());*/
+
+
+
+
+
+        //EXERCICI 1.6
+
+        //System.out.println(Xifrar.validateSignature(msg, sign, keyPair.getPublic()));
+
+
+
+        //EXERCICI 2.2
+
+        KeyPair keyPair1 = Xifrar.randomGenerate(1024);
+
+        byte[][] encriptat = Xifrar.encryptWrappedData(msg, keyPair1.getPublic());
+        System.out.println("Xifrat: " + encriptat);
+
+        byte[] desencriptat = Xifrar.decryptWrappedData(encriptat, keyPair1.getPrivate());
+        String text = new String(desencriptat, StandardCharsets.UTF_8);
+
+        System.out.println("Desxifrat: " + text);
 
     }
 }
